@@ -7,6 +7,7 @@
 #
 # Created by Justin Lizama (jlizama2@illinois.edu) on 09/28/2018
 import math
+
 """
 This is the main entry point for MP3. You should only modify code
 within this file and the last two arguments of line 34 in mp3.py
@@ -14,7 +15,7 @@ and if you want-- the unrevised staff files will be used for all other
 files and classes when code is run, so be careful to not modify anything else.
 """
 
-def naiveBayes(train_set, train_labels, dev_set, smoothing_parameter=0.001, pos_prior=0.8):
+def naiveBayes(train_set, train_labels, dev_set, smoothing_parameter=0.01, pos_prior=0.8):
     """
     train_set - List of list of words corresponding with each movie review
     example: suppose I had two reviews 'like this movie' and 'i fall asleep' in my training set
@@ -62,18 +63,13 @@ def naiveBayes(train_set, train_labels, dev_set, smoothing_parameter=0.001, pos_
                     negativeCounts[newWord] = 1
     totalWords = positiveWords + negativeWords
 
-    #now go through each word and give each it's P(word | positive / negative)
-    #P = (count(W)+α)/(n+α(V+1)) here V = 2
-    '''
-    for word, times in positiveCounts.items():
-        positiveCounts[word] = float(positiveCounts[word]) / positiveWords
-    for word, times in negativeCounts.items():
-        negativeCounts[word] = float(negativeCounts[word]) / negativeWords
-    '''
-    #print("prods:", positiveCounts, negativeCounts)
-
+    #rm super low numbers + high numbers
+    lowRange = 4
+    highRange = totalWords * 0.9
     #now do dev data
     guesses = []
+    vPos = positiveWords
+    vNeg = negativeWords
     for data in dev_set:
         probPositive = math.log(pos_prior)    #probPositive = math.log(float(positiveWords) / totalWords)  # P(positive)
         probNegative = math.log(1 - pos_prior)  # P(negative)
@@ -82,12 +78,12 @@ def naiveBayes(train_set, train_labels, dev_set, smoothing_parameter=0.001, pos_
         for word in data:
             newWord = word.lower()
             if newWord in positiveCounts:
-                probPositive += math.log((float(positiveCounts[newWord])+smoothing_parameter)/(positiveWords + smoothing_parameter * 3))
+                probPositive += math.log((float(positiveCounts[newWord])+smoothing_parameter)/(positiveWords + smoothing_parameter * (vPos + 1)))
             else:
                 probPositive += math.log(
                     (0.0 + smoothing_parameter) / (positiveWords + smoothing_parameter * 3))
             if newWord in negativeCounts:
-                probNegative += math.log((float(negativeCounts[newWord])+smoothing_parameter)/(negativeWords + smoothing_parameter * 3))
+                probNegative += math.log((float(negativeCounts[newWord])+smoothing_parameter)/(negativeWords + smoothing_parameter * (vNeg + 1)))
             else:
                 probNegative += math.log(
                     (0.0 + smoothing_parameter) / (negativeWords + smoothing_parameter * 3))

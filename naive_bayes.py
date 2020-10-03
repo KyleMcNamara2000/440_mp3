@@ -46,18 +46,20 @@ def naiveBayes(train_set, train_labels, dev_set, smoothing_parameter=1.0, pos_pr
             #positiveCount += 1
             positiveWords += len(train_set[i])
             for word in train_set[i]:
-                if word in positiveCounts:
-                    positiveCounts[word] += 1
+                newWord = word.lower()
+                if newWord in positiveCounts:
+                    positiveCounts[newWord] += 1
                 else:
-                    positiveCounts[word] = 1
+                    positiveCounts[newWord] = 1
         else:
             #negativeCount += 1
             negativeWords += len(train_set[i])
             for word in train_set[i]:
-                if word in negativeCounts:
-                    negativeCounts[word] += 1
+                newWord = word.lower()
+                if newWord in negativeCounts:
+                    negativeCounts[newWord] += 1
                 else:
-                    negativeCounts[word] = 1
+                    negativeCounts[newWord] = 1
     totalWords = positiveWords + negativeWords
 
     #now go through each word and give each it's P(word | positive / negative)
@@ -75,14 +77,17 @@ def naiveBayes(train_set, train_labels, dev_set, smoothing_parameter=1.0, pos_pr
     for data in dev_set:
         probPositive = math.log(pos_prior)    #probPositive = math.log(float(positiveWords) / totalWords)  # P(positive)
         probNegative = math.log(1 - pos_prior)  # P(negative)
+        #probPositive = math.log(float(positiveWords) / totalWords)  # P(positive)
+        #probNegative = math.log(float(negativeWords) / totalWords)  # P(negative)
         for word in data:
-            if word in positiveCounts:
-                probPositive += math.log((float(positiveCounts[word])+smoothing_parameter)/(positiveWords + smoothing_parameter * 3))
+            newWord = word.lower()
+            if newWord in positiveCounts:
+                probPositive += math.log((float(positiveCounts[newWord])+smoothing_parameter)/(positiveWords + smoothing_parameter * 3))
             else:
                 probPositive += math.log(
                     (0.0 + smoothing_parameter) / (positiveWords + smoothing_parameter * 3))
             if word in negativeCounts:
-                probNegative += math.log((float(negativeCounts[word])+smoothing_parameter)/(negativeWords + smoothing_parameter * 3))
+                probNegative += math.log((float(negativeCounts[newWord])+smoothing_parameter)/(negativeWords + smoothing_parameter * 3))
             else:
                 probNegative += math.log(
                     (0.0 + smoothing_parameter) / (negativeWords + smoothing_parameter * 3))

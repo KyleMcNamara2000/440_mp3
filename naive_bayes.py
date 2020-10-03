@@ -66,8 +66,8 @@ def naiveBayes(train_set, train_labels, dev_set, smoothing_parameter=0.01, pos_p
     totalWords = positiveWords + negativeWords
 
     #rm super low numbers + high numbers
-    lowRange = 1
-    highRange = totalWords * 1
+    lowRange = 3
+    highRange = totalWords * 1 #add max?
     #now do dev data
     guesses = []
     vPos = uniqueWords[0]

@@ -6,7 +6,7 @@
 # attribution to the University of Illinois at Urbana-Champaign
 #
 # Created by Justin Lizama (jlizama2@illinois.edu) on 09/28/2018
-
+import math
 """
 This is the main entry point for MP3. You should only modify code
 within this file and the last two arguments of line 34 in mp3.py
@@ -32,7 +32,63 @@ def naiveBayes(train_set, train_labels, dev_set, smoothing_parameter=1.0, pos_pr
     """
     # TODO: Write your code here
     # return predicted labels of development set
-    return []
+
+    #P(positive given words) = P(positive) * product(word | type= positive)
+    #initial runthrough
+    #positiveCount = 0
+    #negativeCount = 0
+    positiveWords = 0
+    negativeWords = 0
+    positiveCounts = {}
+    negativeCounts = {}
+    for i in range(len(train_labels)):
+        if train_labels[i] == 1:
+            #positiveCount += 1
+            positiveWords += len(train_set[i])
+            for word in train_set[i]:
+                if word in positiveCounts:
+                    positiveCounts[word] += 1
+                else:
+                    positiveCounts[word] = 1
+        else:
+            #negativeCount += 1
+            negativeWords += len(train_set[i])
+            for word in train_set[i]:
+                if word in negativeCounts:
+                    negativeCounts[word] += 1
+                else:
+                    negativeCounts[word] = 1
+    totalWords = positiveWords + negativeWords
+
+    #now go through each word and give each it's P(word | positive / negative)
+    #P = (count(W)+α)/(n+α(V+1)) here V = 2
+    '''
+    for word, times in positiveCounts.items():
+        positiveCounts[word] = float(positiveCounts[word]) / positiveWords
+    for word, times in negativeCounts.items():
+        negativeCounts[word] = float(negativeCounts[word]) / negativeWords
+    '''
+    #print("prods:", positiveCounts, negativeCounts)
+
+    #now do dev data
+    guesses = []
+    for data in dev_set:
+        probPositive = math.log(pos_prior)    #probPositive = math.log(float(positiveWords) / totalWords)  # P(positive)
+        probNegative = math.log(1 - pos_prior)  # P(negative)
+        for word in data:
+            if word in positiveCounts:
+                probPositive += math.log((float(positiveCounts[word])+smoothing_parameter)/(positiveWords + smoothing_parameter * 3))
+            else:
+                probPositive += math.log(
+                    (0.0 + smoothing_parameter) / (positiveWords + smoothing_parameter * 3))
+            if word in negativeCounts:
+                probNegative += math.log((float(negativeCounts[word])+smoothing_parameter)/(negativeWords + smoothing_parameter * 3))
+            else:
+                probNegative += math.log(
+                    (0.0 + smoothing_parameter) / (negativeWords + smoothing_parameter * 3))
+        guesses.append(int(probPositive > probNegative))
+
+    return guesses
 
 def bigramBayes(train_set, train_labels, dev_set, unigram_smoothing_parameter=1.0, bigram_smoothing_parameter=1.0, bigram_lambda=0.5,pos_prior=0.8):
     """
@@ -54,4 +110,5 @@ def bigramBayes(train_set, train_labels, dev_set, unigram_smoothing_parameter=1.
     """
     # TODO: Write your code here
     # return predicted labels of development set using a bigram model
+    print("ho")
     return []

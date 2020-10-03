@@ -86,7 +86,7 @@ def naiveBayes(train_set, train_labels, dev_set, smoothing_parameter=1.0, pos_pr
             else:
                 probPositive += math.log(
                     (0.0 + smoothing_parameter) / (positiveWords + smoothing_parameter * 3))
-            if word in negativeCounts:
+            if newWord in negativeCounts:
                 probNegative += math.log((float(negativeCounts[newWord])+smoothing_parameter)/(negativeWords + smoothing_parameter * 3))
             else:
                 probNegative += math.log(

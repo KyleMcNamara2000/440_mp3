@@ -36,12 +36,12 @@ def naiveBayes(train_set, train_labels, dev_set, smoothing_parameter=0.01, pos_p
 
     #P(positive given words) = P(positive) * product(word | type= positive)
     #initial runthrough
-    #positiveCount = 0
-    #negativeCount = 0
+
     positiveWords = 0
     negativeWords = 0
     positiveCounts = {}
     negativeCounts = {}
+    uniqueWords = [0, 0]
     for i in range(len(train_labels)):
         if train_labels[i] == 1:
             #positiveCount += 1
@@ -52,6 +52,7 @@ def naiveBayes(train_set, train_labels, dev_set, smoothing_parameter=0.01, pos_p
                     positiveCounts[newWord] += 1
                 else:
                     positiveCounts[newWord] = 1
+                    uniqueWords[0] += 1
         else:
             #negativeCount += 1
             negativeWords += len(train_set[i])
@@ -61,15 +62,16 @@ def naiveBayes(train_set, train_labels, dev_set, smoothing_parameter=0.01, pos_p
                     negativeCounts[newWord] += 1
                 else:
                     negativeCounts[newWord] = 1
+                    uniqueWords[1] += 1
     totalWords = positiveWords + negativeWords
 
     #rm super low numbers + high numbers
-    lowRange = 4
-    highRange = totalWords * 0.9
+    lowRange = 1
+    highRange = totalWords * 1
     #now do dev data
     guesses = []
-    vPos = positiveWords
-    vNeg = negativeWords
+    vPos = uniqueWords[0]
+    vNeg = uniqueWords[1]
     for data in dev_set:
         probPositive = math.log(pos_prior)    #probPositive = math.log(float(positiveWords) / totalWords)  # P(positive)
         probNegative = math.log(1 - pos_prior)  # P(negative)
@@ -77,12 +79,12 @@ def naiveBayes(train_set, train_labels, dev_set, smoothing_parameter=0.01, pos_p
         #probNegative = math.log(float(negativeWords) / totalWords)  # P(negative)
         for word in data:
             newWord = word.lower()
-            if newWord in positiveCounts:
+            if newWord in positiveCounts and positiveCounts[newWord] > lowRange:
                 probPositive += math.log((float(positiveCounts[newWord])+smoothing_parameter)/(positiveWords + smoothing_parameter * (vPos + 1)))
             else:
                 probPositive += math.log(
                     (0.0 + smoothing_parameter) / (positiveWords + smoothing_parameter * 3))
-            if newWord in negativeCounts:
+            if newWord in negativeCounts and negativeCounts[newWord] < highRange:
                 probNegative += math.log((float(negativeCounts[newWord])+smoothing_parameter)/(negativeWords + smoothing_parameter * (vNeg + 1)))
             else:
                 probNegative += math.log(

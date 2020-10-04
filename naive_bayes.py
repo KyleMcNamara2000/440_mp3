@@ -67,7 +67,8 @@ def naiveBayes(train_set, train_labels, dev_set, smoothing_parameter=0.01, pos_p
 
     #rm super low numbers + high numbers
     lowRange = 1
-    highRange = totalWords * 0.3 #add max?
+    highRangeP = positiveWords * 0.3 #add max?
+    highRangeN = negativeWords * 0.3  # add max?
     #now do dev data
     guesses = []
     vPos = uniqueWords[0]
@@ -79,12 +80,12 @@ def naiveBayes(train_set, train_labels, dev_set, smoothing_parameter=0.01, pos_p
         #probNegative = math.log(float(negativeWords) / totalWords)  # P(negative)
         for word in data:
             newWord = word.lower()
-            if newWord in positiveCounts and positiveCounts[newWord] > lowRange# and positiveCounts[newWord] < highRange:
+            if newWord in positiveCounts and positiveCounts[newWord] > lowRange:# and positiveCounts[newWord] < highRange:
                 probPositive += math.log((float(positiveCounts[newWord])+smoothing_parameter)/(positiveWords + smoothing_parameter * (vPos + 1)))
             else:
                 probPositive += math.log(
                     (0.0 + smoothing_parameter) / (positiveWords + smoothing_parameter * (vPos + 1)))
-            if newWord in negativeCounts and negativeCounts[newWord] > lowRange# and negativeCounts[newWord] < highRange:
+            if newWord in negativeCounts and negativeCounts[newWord] > lowRange:# and negativeCounts[newWord] < highRange:
                 probNegative += math.log((float(negativeCounts[newWord])+smoothing_parameter)/(negativeWords + smoothing_parameter * (vNeg + 1)))
             else:
                 probNegative += math.log(

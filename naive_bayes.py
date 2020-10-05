@@ -101,7 +101,7 @@ def makePairs(train_set):
     for i in range(len(train_set)):
         pairs = []
         for j in range(len(train_set[i]) - 1):
-            pairs.append((train_set[i][j], train_set[i][j + 1]))
+            pairs.append(train_set[i][j] + " " + train_set[i][j + 1])
         retSet.append(pairs)
     return retSet
 
@@ -127,6 +127,7 @@ def bigramBayes(train_set, train_labels, dev_set, unigram_smoothing_parameter=1.
     # TODO: Write your code here
     # return predicted labels of development set using a bigram model
     #first make list of word pairs
-    trainPairs = makePairs(train_set)
+    train_set_pairs = makePairs(train_set)
+    dev_set_pairs = makePairs(dev_set)
 
-    return []
+    return naiveBayes(train_set_pairs, train_labels, dev_set_pairs, unigram_smoothing_parameter, pos_prior)

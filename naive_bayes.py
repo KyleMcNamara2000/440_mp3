@@ -15,7 +15,11 @@ and if you want-- the unrevised staff files will be used for all other
 files and classes when code is run, so be careful to not modify anything else.
 """
 
-def naiveBayes(train_set, train_labels, dev_set, smoothing_parameter=0.01, pos_prior=0.8):
+
+
+
+
+def naiveBayes(train_set, train_labels, dev_set, smoothing_parameter=1, pos_prior=0.8):
     """
     train_set - List of list of words corresponding with each movie review
     example: suppose I had two reviews 'like this movie' and 'i fall asleep' in my training set
@@ -65,10 +69,7 @@ def naiveBayes(train_set, train_labels, dev_set, smoothing_parameter=0.01, pos_p
                     uniqueWords[1] += 1
     totalWords = positiveWords + negativeWords
 
-    #rm super low numbers + high numbers
-    lowRange = 1
-    highRangeP = positiveWords * 0.3 #add max?
-    highRangeN = negativeWords * 0.3  # add max?
+
     #now do dev data
     guesses = []
     vPos = uniqueWords[0]
@@ -80,12 +81,12 @@ def naiveBayes(train_set, train_labels, dev_set, smoothing_parameter=0.01, pos_p
         #probNegative = math.log(float(negativeWords) / totalWords)  # P(negative)
         for word in data:
             newWord = word.lower()
-            if newWord in positiveCounts and positiveCounts[newWord] > lowRange:# and positiveCounts[newWord] < highRange:
+            if newWord in positiveCounts:
                 probPositive += math.log((float(positiveCounts[newWord])+smoothing_parameter)/(positiveWords + smoothing_parameter * (vPos + 1)))
             else:
                 probPositive += math.log(
                     (0.0 + smoothing_parameter) / (positiveWords + smoothing_parameter * (vPos + 1)))
-            if newWord in negativeCounts and negativeCounts[newWord] > lowRange:# and negativeCounts[newWord] < highRange:
+            if newWord in negativeCounts:
                 probNegative += math.log((float(negativeCounts[newWord])+smoothing_parameter)/(negativeWords + smoothing_parameter * (vNeg + 1)))
             else:
                 probNegative += math.log(
@@ -93,6 +94,17 @@ def naiveBayes(train_set, train_labels, dev_set, smoothing_parameter=0.01, pos_p
         guesses.append(int(probPositive > probNegative))
 
     return guesses
+
+
+def makePairs(train_set):
+    retSet = []
+    for i in range(len(train_set)):
+        pairs = []
+        for j in range(len(train_set[i]) - 1):
+            pairs.append((train_set[i][j], train_set[i][j + 1]))
+        retSet.append(pairs)
+    return retSet
+
 
 def bigramBayes(train_set, train_labels, dev_set, unigram_smoothing_parameter=1.0, bigram_smoothing_parameter=1.0, bigram_lambda=0.5,pos_prior=0.8):
     """
@@ -114,5 +126,7 @@ def bigramBayes(train_set, train_labels, dev_set, unigram_smoothing_parameter=1.
     """
     # TODO: Write your code here
     # return predicted labels of development set using a bigram model
-    print("ho")
+    #first make list of word pairs
+    trainPairs = makePairs(train_set)
+
     return []

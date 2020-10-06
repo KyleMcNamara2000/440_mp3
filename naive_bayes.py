@@ -7,6 +7,8 @@
 #
 # Created by Justin Lizama (jlizama2@illinois.edu) on 09/28/2018
 import math
+import nltk
+from nltk.corpus import stopwords
 
 """
 This is the main entry point for MP3. You should only modify code
@@ -118,12 +120,13 @@ def naiveBayes(train_set, train_labels, dev_set, smoothing_parameter=1, pos_prio
     return guesses
 
 
-def makePairs(train_set):
+def makePairs(train_set, stop = False):
     retSet = []
     for i in range(len(train_set)):
         pairs = []
         for j in range(len(train_set[i]) - 1):
-            pairs.append(train_set[i][j] + " " + train_set[i][j + 1])
+            if (train_set[i][j] not in stopwords.words('english') and train_set[i][j + 1] not in stopwords.words('english')) or stop is False:
+                pairs.append(train_set[i][j] + " " + train_set[i][j + 1])
         retSet.append(pairs)
     return retSet
 
@@ -149,9 +152,9 @@ def bigramBayes(train_set, train_labels, dev_set, unigram_smoothing_parameter=1.
     # TODO: Write your code here
     # return predicted labels of development set using a bigram model
     #first make list of word pairs
-    train_set_pairs = makePairs(train_set)
-    dev_set_pairs = makePairs(dev_set)
-    biOut = helperBayes(train_set_pairs, train_labels, dev_set_pairs, bigram_smoothing_parameter, pos_prior)
+    train_set_pairs = makePairs(train_set, True)
+    dev_set_pairs = makePairs(dev_set, True)
+    biOut = helperBayes(train_set_pairs, train_labels, dev_set_pairs, bigram_smoothing_parameter, pos_prior, True)
     uniOut = helperBayes(train_set, train_labels, dev_set, unigram_smoothing_parameter, pos_prior)
     guesses = []
     #for each doc: mixed = (1-L)(uniOut[i]) + (L)(biOut[i]) <- do for positive and negative

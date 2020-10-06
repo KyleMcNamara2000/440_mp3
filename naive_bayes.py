@@ -16,10 +16,7 @@ files and classes when code is run, so be careful to not modify anything else.
 """
 
 
-
-
-
-def naiveBayes(train_set, train_labels, dev_set, smoothing_parameter=1, pos_prior=0.8):
+def helperBayes(train_set, train_labels, dev_set, smoothing_parameter, pos_prior):
     """
     train_set - List of list of words corresponding with each movie review
     example: suppose I had two reviews 'like this movie' and 'i fall asleep' in my training set
@@ -71,7 +68,7 @@ def naiveBayes(train_set, train_labels, dev_set, smoothing_parameter=1, pos_prio
 
 
     #now do dev data
-    guesses = []
+    pairs = [] #(probPos, probNeg)
     vPos = uniqueWords[0]
     vNeg = uniqueWords[1]
     for data in dev_set:
@@ -91,8 +88,33 @@ def naiveBayes(train_set, train_labels, dev_set, smoothing_parameter=1, pos_prio
             else:
                 probNegative += math.log(
                     (0.0 + smoothing_parameter) / (negativeWords + smoothing_parameter * (vNeg + 1)))
-        guesses.append(int(probPositive > probNegative))
+        pairs.append((probPositive, probNegative))
 
+    return pairs
+
+
+def naiveBayes(train_set, train_labels, dev_set, smoothing_parameter=1, pos_prior=0.8):
+    """
+    train_set - List of list of words corresponding with each movie review
+    example: suppose I had two reviews 'like this movie' and 'i fall asleep' in my training set
+    Then train_set := [['like','this','movie'], ['i','fall','asleep']]
+
+    train_labels - List of labels corresponding with train_set
+    example: Suppose I had two reviews, first one was positive and second one was negative.
+    Then train_labels := [1, 0]
+
+    dev_set - List of list of words corresponding with each review that we are testing on
+              It follows the same format as train_set
+
+    smoothing_parameter - The smoothing parameter --laplace (1.0 by default)
+    pos_prior - The prior probability that a word is positive. You do not need to change this value.
+    """
+    # TODO: Write your code here
+    # return predicted labels of development set
+    pairs = helperBayes(train_set, train_labels, dev_set, smoothing_parameter, pos_prior)
+    guesses = []
+    for pair in pairs:
+        guesses.append(int(pair[0] > pair[1]))
     return guesses
 
 
@@ -129,7 +151,13 @@ def bigramBayes(train_set, train_labels, dev_set, unigram_smoothing_parameter=1.
     #first make list of word pairs
     train_set_pairs = makePairs(train_set)
     dev_set_pairs = makePairs(dev_set)
-    biOut = naiveBayes(train_set_pairs, train_labels, dev_set_pairs, bigram_smoothing_parameter, pos_prior)
-    uniOut = naiveBayes(train_set, train_labels, dev_set, unigram_smoothing_parameter, pos_prior)
+    biOut = helperBayes(train_set_pairs, train_labels, dev_set_pairs, bigram_smoothing_parameter, pos_prior)
+    uniOut = helperBayes(train_set, train_labels, dev_set, unigram_smoothing_parameter, pos_prior)
+    guesses = []
+    #for each doc: mixed = (1-L)(uniOut[i]) + (L)(biOut[i]) <- do for positive and negative
+    for i in range(len(biOut)):
+        mixedPositive = (1 - bigram_lambda) * uniOut[i][0] + bigram_lambda * biOut[i][0]
+        mixedNegative = (1 - bigram_lambda) * uniOut[i][1] + bigram_lambda * biOut[i][1]
+        guesses.append(int(mixedPositive > mixedNegative))
 
-    return naiveBayes(train_set_pairs, train_labels, dev_set_pairs, bigram_smoothing_parameter, pos_prior)
+    return guesses

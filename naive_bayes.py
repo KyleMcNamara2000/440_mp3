@@ -129,5 +129,7 @@ def bigramBayes(train_set, train_labels, dev_set, unigram_smoothing_parameter=1.
     #first make list of word pairs
     train_set_pairs = makePairs(train_set)
     dev_set_pairs = makePairs(dev_set)
+    biOut = naiveBayes(train_set_pairs, train_labels, dev_set_pairs, bigram_smoothing_parameter, pos_prior)
+    uniOut = naiveBayes(train_set, train_labels, dev_set, unigram_smoothing_parameter, pos_prior)
 
-    return naiveBayes(train_set_pairs, train_labels, dev_set_pairs, unigram_smoothing_parameter, pos_prior)
+    return naiveBayes(train_set_pairs, train_labels, dev_set_pairs, bigram_smoothing_parameter, pos_prior)

@@ -161,8 +161,8 @@ def bigramBayes(train_set, train_labels, dev_set, unigram_smoothing_parameter=1.
     guesses = []
     #for each doc: mixed = (1-L)(uniOut[i]) + (L)(biOut[i]) <- do for positive and negative
     for i in range(len(biOut)):
-        mixedPositive = (1 - bigram_lambda) * uniOut[i][0] + bigram_lambda * biOut[i][0]
-        mixedNegative = (1 - bigram_lambda) * uniOut[i][1] + bigram_lambda * biOut[i][1]
+        mixedPositive = (1 - bigram_lambda) * uniOut[i][0] + bigram_lambda * 0.01 * biOut[i][0]
+        mixedNegative = (1 - bigram_lambda) * uniOut[i][1] + bigram_lambda * 0.01 * biOut[i][1]
         guesses.append(int(mixedPositive > mixedNegative))
 
     return guesses

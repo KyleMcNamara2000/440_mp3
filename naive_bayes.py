@@ -9,6 +9,8 @@
 import math
 import nltk
 nltk.download('stopwords')
+from nltk.stem import PorterStemmer
+from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 
 """
@@ -122,18 +124,20 @@ def naiveBayes(train_set, train_labels, dev_set, smoothing_parameter=1, pos_prio
 
 
 def makePairs(train_set, stop = False):
+    ps = PorterStemmer() #ps.stem(w))
     retSet = []
     badWords = stopwords.words('english')
     for i in range(len(train_set)):
         pairs = []
         for j in range(len(train_set[i]) - 1):
             if stop is False or (train_set[i][j] not in badWords and train_set[i][j + 1] not in badWords):
+                #pairs.append(ps.stem(train_set[i][j]) + " " + ps.stem(train_set[i][j + 1]))
                 pairs.append(train_set[i][j] + " " + train_set[i][j + 1])
         retSet.append(pairs)
     return retSet
 
 
-def bigramBayes(train_set, train_labels, dev_set, unigram_smoothing_parameter=1.0, bigram_smoothing_parameter=1.0, bigram_lambda=0.5,pos_prior=0.8):
+def bigramBayes(train_set, train_labels, dev_set, unigram_smoothing_parameter=1.0, bigram_smoothing_parameter=1.0, bigram_lambda=0.01,pos_prior=0.8):
     """
     train_set - List of list of words corresponding with each movie review
     example: suppose I had two reviews 'like this movie' and 'i fall asleep' in my training set
@@ -161,8 +165,8 @@ def bigramBayes(train_set, train_labels, dev_set, unigram_smoothing_parameter=1.
     guesses = []
     #for each doc: mixed = (1-L)(uniOut[i]) + (L)(biOut[i]) <- do for positive and negative
     for i in range(len(biOut)):
-        mixedPositive = (1 - bigram_lambda) * uniOut[i][0] + bigram_lambda * 0.01 * biOut[i][0]
-        mixedNegative = (1 - bigram_lambda) * uniOut[i][1] + bigram_lambda * 0.01 * biOut[i][1]
+        mixedPositive = (1 - bigram_lambda) * uniOut[i][0] + bigram_lambda * biOut[i][0]
+        mixedNegative = (1 - bigram_lambda) * uniOut[i][1] + bigram_lambda * biOut[i][1]
         guesses.append(int(mixedPositive > mixedNegative))
 
     return guesses
